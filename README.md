@@ -58,3 +58,4 @@ Actualmente el prototipo se encuentra en fase de integración física y cableado
 ![Conexión de Motores](avances/IMG_20260815_055337_628.jpg)
 ![Vista Superior del Ensamble](avances/IMG_20260815_055341_927.jpg)
 ![](avances/IMG_20260815_055345_627.jpg)
+![](avances/IMG_20260815_064539_697.jpg)
