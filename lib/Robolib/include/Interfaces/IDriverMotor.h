@@ -1,6 +1,8 @@
 #ifndef DRIVER_MOTOR_H
 #define DRIVER_MOTOR_H
 
+#include <cstdint>
+
 /**
  * @brief Interfaz abstracta para controladores de motores.
  * 
@@ -23,24 +25,22 @@ public:
      * Configura el hardware del driver (pines PWM, dirección, habilitación,
      * frecuencia PWM, etc.). Debe llamarse antes de cualquier movimiento.
      */
-    virtual void iniciar() = 0;
+    virtual void begin() = 0;
 
     /**
-     * @brief Establece la velocidad de ambos motores.
+     * @brief Establece la velocidad del motor.
      * 
-     * @param velIzquierda Velocidad motor izquierdo (-255 a 255).
-     *                     Negativo = reversa, positivo = adelante.
-     * @param velDerecha   Velocidad motor derecho (-255 a 255).
+     * @param speed Velocidad del motor (-255 a 255).
      *                     Negativo = reversa, positivo = adelante.
      */
-    virtual void mover(int velIzquierda, int velDerecha) = 0;
+    virtual void move(int16_t speed) = 0;
 
     /**
-     * @brief Detiene ambos motores inmediatamente.
+     * @brief Detiene el motor inmediatamente.
      * 
-     * Frena los motores (cortocircuito en puente H) o establece velocidad 0.
+     * Frena el motor (cortocircuito en puente H) o establece velocidad 0.
      */
-    virtual void detener() = 0;
+    virtual void stop(bool stacked = false) = 0;
 };
 
 #endif
