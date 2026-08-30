@@ -1,67 +1,74 @@
-
-#include "Controllers\Actuators\Motors\HBridgeMotorDriver.h"
+#include "Controllers/Actuators/Motors/HBridgeMotorDriver.h"
 #include <Arduino.h>
 
+namespace robolib {
 
-#define PWM_FREQ 25000   // Frecuencia PWM en Hz
-#define PWM_RESOLUTION 8 // Resolución PWM (8 bits)
+/**
+ * @file HBridgeMotorDriver.cpp
+ * @brief Implementación de driver para puente H genérico (L298N, TB6612, etc.).
+ * 
+ * Usa periférico LEDC del ESP32 para PWM de 2 canales.
+ * Frecuencia: 25 kHz (fuera de rango audible, reduce vibración audible en motores).
+ * Resolución: 8 bits (0-255).
+ * 
+ * @ingroup drivers
+ */
 
-class HBridgeMotorDriver : public IDriverMotor
+HBridgeMotorDriver::HBridgeMotorDriver(uint8_t pinIN1, uint8_t pinIN2, uint8_t ch1, uint8_t ch2)
+    : IN1(pinIN1), IN2(pinIN2), CH1(ch1), CH2(ch2) {}
+
+void HBridgeMotorDriver::begin()
 {
-private:
-    uint8_t IN1;
-    uint8_t IN2;
-    uint8_t CH1;
-    uint8_t CH2;
+    // Configurar pines de dirección como salidas
+    pinMode(IN1, OUTPUT);
+    pinMode(IN2, OUTPUT);
 
-public:
-    HBridgeMotorDriver(uint8_t pinIN1, uint8_t pinIN2, uint8_t ch1, uint8_t ch2)
-        : IN1(pinIN1), IN2(pinIN2), CH1(ch1), CH2(ch2) {}
+    // Configurar canales LEDC: frecuencia 25 kHz, resolución 8 bits
+    ledcSetup(CH1, PWM_FREQ, PWM_RES);
+    ledcSetup(CH2, PWM_FREQ, PWM_RES);
 
-    void HBridgeMotorDriver::~IDriverMotor(){};
+    // Adjuntar pines GPIO a canales LEDC
+    ledcAttachPin(IN1, CH1);
+    ledcAttachPin(IN2, CH2);
 
-    void HBridgeMotorDriver::begin() override
-    {
-        pinMode(IN1, OUTPUT);
-        pinMode(IN2, OUTPUT);
+    // Estado inicial: motor detenido (freno libre)
+    stop(false);
+}
 
-        ledcSetup(CH1, PWM_FREQ, PWM_RESOLUTION);
-        ledcSetup(CH2, PWM_FREQ, PWM_RESOLUTION);
+void HBridgeMotorDriver::move(int16_t speed)
+{
+    // Saturar a rango PWM válido [0, 255]
+    speed = constrain(speed, -255, 255);
 
-        ledcAttachPin(IN1, CH1);
-        ledcAttachPin(IN2, CH2);
-
-        stop();
+    if (speed > 0) {
+        // Adelante: CH1 = PWM, CH2 = 0
+        ledcWrite(CH1, static_cast<uint32_t>(speed));
+        ledcWrite(CH2, 0);
     }
-
-    void HBridgeMotorDriver::move(int16_t speed) override
-    {
-        speed = constrain(speed, -255, 255);
-        if (speed > 0)
-        {
-            ledcWrite(CH1, speed);
-            ledcWrite(CH2, 0);
-        }
-        else if (speed < 0)
-        {
-            ledcWrite(CH1, 0);
-            ledcWrite(CH2, speed);
-        }
-        else if (speed == 0)
-            stop();
+    else if (speed < 0) {
+        // Reversa: CH1 = 0, CH2 = |PWM|
+        ledcWrite(CH1, 0);
+        ledcWrite(CH2, static_cast<uint32_t>(-speed));
     }
-
-    void HBridgeMotorDriver::stop(bool stacked = false) override
-    {
-        if (stacked)
-        {
-            ledcWrite(CH1, 255);
-            ledcWrite(CH2, 255);
-        }
-        else
-        {
-            ledcWrite(CH1, 0);
-            ledcWrite(CH2, 0);
-        }
+    else {
+        // Cero: detener con freno libre
+        stop(false);
     }
-};
+}
+
+void HBridgeMotorDriver::stop(bool stacked)
+{
+    if (stacked) {
+        // Freno activo (brake): ambos canales a 255 -> cortocircuito en puente H
+        // Detiene el motor rápidamente pero consume corriente de mantenimiento
+        ledcWrite(CH1, 255);
+        ledcWrite(CH2, 255);
+    }
+    else {
+        // Freno libre (coasting): ambos canales a 0 -> motor gira libre
+        ledcWrite(CH1, 0);
+        ledcWrite(CH2, 0);
+    }
+}
+
+} // namespace robolib
