@@ -1,8 +1,8 @@
 #ifndef GESTOR_HARDWARE_H
 #define GESTOR_HARDWARE_H
 
-#include "interfaces/IDriverMotor.h"
-#include "interfaces/IDriverSensorDistancia.h"
+#include "..\lib\Interfaces\IDriverMotor.h"
+#include "..\lib\Interfaces\IDriverSensorDistancia.h"
 
 class GestorHardware
 {
