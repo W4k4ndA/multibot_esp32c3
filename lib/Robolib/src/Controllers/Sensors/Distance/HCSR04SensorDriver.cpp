@@ -1,4 +1,4 @@
-#include "Controllers/Sensors/Distance/HCSR04SensorDriver.h"
+#include "HCSR04SensorDriver.h"
 #include <Arduino.h>
 
 namespace robolib {

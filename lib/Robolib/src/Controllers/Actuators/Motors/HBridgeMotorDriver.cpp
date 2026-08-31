@@ -1,4 +1,4 @@
-#include "Controllers/Actuators/Motors/HBridgeMotorDriver.h"
+#include "HBridgeMotorDriver.h"
 #include <Arduino.h>
 
 namespace robolib {

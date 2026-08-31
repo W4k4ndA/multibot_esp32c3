@@ -1,44 +1,47 @@
-#include "Controllers\Sensors\Line\TCRT5000SensorDriver.h"
+#include "TCRT5000SensorDriver.h"
 #include <Arduino.h>
 
-TCRT5000SensorDriver::TCRT5000SensorDriver(uint8_t pin, bool sensorType) : sensorPin(pin), isDigital(sensorType) {}
-
-void TCRT5000SensorDriver::begin()
+namespace robolib
 {
-    pinMode(sensorPin, INPUT);
-}
+    TCRT5000SensorDriver::TCRT5000SensorDriver(uint8_t pin, bool sensorType) : sensorPin(pin), isDigital(sensorType) {}
 
-void TCRT5000SensorDriver::set1IsonLine()
-{
-    is1onLine = true;
-}
-
-int TCRT5000SensorDriver::getAnalogValue()
-{
-    return analogRead(sensorPin);
-}
-
-bool TCRT5000SensorDriver::isOnLine()
-{
-    if (isDigital)
+    void TCRT5000SensorDriver::begin()
     {
-        if (is1onLine == digitalRead(sensorPin))
+        pinMode(sensorPin, INPUT);
+    }
+
+    void TCRT5000SensorDriver::set1IsonLine()
+    {
+        is1onLine = true;
+    }
+
+    int TCRT5000SensorDriver::getAnalogValue()
+    {
+        return analogRead(sensorPin);
+    }
+
+    bool TCRT5000SensorDriver::isOnLine()
+    {
+        if (isDigital)
         {
-            return true;
+            if (is1onLine == digitalRead(sensorPin))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
+
         else
         {
-            return false;
+            return analogRead(sensorPin) >= threshold; // Umbral para sensor analógico
         }
     }
 
-    else
+    void TCRT5000SensorDriver::setThreshold(int value)
     {
-        return analogRead(sensorPin) >= threshold; // Umbral para sensor analógico
+        threshold = value;
     }
-}
-
-void TCRT5000SensorDriver::setThreshold(int value)
-{
-    threshold = value;
 }

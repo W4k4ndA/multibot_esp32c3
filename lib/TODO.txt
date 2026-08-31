@@ -1,0 +1,4 @@
+-Actualiziar la clase robotBuilder en robot.h para incluir el vector de
+sensores de linea en el proceso de construccion.
+
+-Actualiziar el archivo robot.cpp para incluir el modulo de sensor de linea
