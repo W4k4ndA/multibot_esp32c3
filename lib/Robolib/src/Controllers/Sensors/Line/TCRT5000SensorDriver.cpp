@@ -20,7 +20,7 @@ namespace robolib
         is1onLine = false;
     }
 
-    int TCRT5000SensorDriver::getAnalogValue()
+    int TCRT5000SensorDriver::getAnalogRawValue()
     {
         return analogRead(sensorPin);
     }

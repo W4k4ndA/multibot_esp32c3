@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <cstdint>
+
+#include "Interfaces/IModule.h"
 #include "Interfaces/IDriverMotor.h"
 #include "Interfaces/IDriverDistanceSensor.h"
 #include "Interfaces/IDriverLineSensor.h"
@@ -61,6 +63,9 @@ namespace robolib
         std::vector<IDriverDistanceSensor *> distanceSensors; ///< Drivers sensores distancia (owner)
         std::vector<IDriverLineSensor *> lineSensors;         ///< Drivers sensores de linea (owner)
 
+        std::vector<IModule *> modules;                       ///< lista de modulos del robot (incluye
+                                                              /// todos los drivers)(owner>
+
         // Solo RobotBuilder puede construir
         Robot() = default;
         friend class RobotBuilder;
@@ -80,6 +85,10 @@ namespace robolib
          */
         ~Robot();
 
+        /**
+         * @brief Inicializa todos los modulos del robot
+         */
+        void init();
         // -------------- Control de Motores ----------------------------------------//
 
         /**
@@ -223,6 +232,7 @@ namespace robolib
          */
 
         void updateTreshold(size_t sensorIndex, int newTreshold);
+
     };
     //--------------------------------------------------------------------------------------
 
@@ -245,6 +255,9 @@ namespace robolib
         std::vector<IDriverMotor *> motors;
         std::vector<IDriverDistanceSensor *> distanceSensors;
         std::vector<IDriverLineSensor *> lineSensors;
+
+        std::vector<IModule *> modules;
+
 
     public:
         /**

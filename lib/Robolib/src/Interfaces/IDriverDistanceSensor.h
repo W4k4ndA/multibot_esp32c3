@@ -1,6 +1,7 @@
 #ifndef DISTANCE_SENSOR_H
 #define DISTANCE_SENSOR_H
 
+#include "IModule.h"
 #include <cstdint>
 
 /**
@@ -30,7 +31,7 @@ namespace robolib {
  * @see HCSR04SensorDriver
  * @ingroup drivers
  */
-class IDriverDistanceSensor {
+class IDriverDistanceSensor : public IModule {
 public:
     /**
      * @brief Destructor virtual por defecto.

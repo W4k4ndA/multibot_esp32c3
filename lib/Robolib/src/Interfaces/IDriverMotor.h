@@ -1,7 +1,9 @@
 #ifndef DRIVER_MOTOR_H
 #define DRIVER_MOTOR_H
 
+
 #include <cstdint>
+#include "IModule.h"
 
 /**
  * @file IDriverMotor.h
@@ -31,7 +33,7 @@ namespace robolib {
  * @see HBridgeMotorDriver
  * @ingroup drivers
  */
-class IDriverMotor {
+class IDriverMotor : public IModule {
 public:
     /**
      * @brief Destructor virtual por defecto.

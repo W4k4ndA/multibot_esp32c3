@@ -70,7 +70,7 @@ namespace robolib
          * 
          * @post Pin configurado y listo para lecturas.
          */
-        void begin();
+        void begin() override;
 
         /**
          * @brief Obtiene el valor analógico crudo del sensor.
@@ -85,7 +85,7 @@ namespace robolib
          * 
          * @note Función no bloqueante, lectura inmediata.
          */
-        int getAnalogValue();
+        int getAnalogRawValue() override;
 
         /**
          * @brief Verifica si el sensor está actualmente sobre una línea.
@@ -98,7 +98,7 @@ namespace robolib
          * 
          * @see setThreshold() para ajustar sensibilidad en modo analógico.
          */
-        bool isOnLine();
+        bool isOnLine() override;
 
         /**
          * @brief Actualiza el estado interno is1onLine.        
@@ -109,7 +109,7 @@ namespace robolib
          * 
          * @post is1onLine refleja el estado actual de detección.
          */
-        void set1IsonLine();
+        void set1IsonLine() override;
 
         /**
          * @brief Actualiza el estado interno is1onLine.        
@@ -120,7 +120,7 @@ namespace robolib
          * @post is1onLine refleja el estado actual de detección.
          */
 
-        void set0IsonLine();
+        void set0IsonLine() override;
 
         /**
          * @brief Establece el umbral de detección para modo analógico.
@@ -133,7 +133,7 @@ namespace robolib
          * 
          * @see getAnalogValue() para calibrar observando valores en línea/fuera de línea.
          */
-        void setThreshold(int value);
+        void setThreshold(int value) override;
     };
 
 }

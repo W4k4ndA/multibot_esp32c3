@@ -17,6 +17,13 @@ namespace robolib
     // Robot
     // ============================================================================
 
+
+    void Robot::init(){
+            for(auto m:modules){
+                m->init();
+            }
+        }
+
     Robot::~Robot()
     {
         // Liberar drivers de motores (owner)
@@ -179,6 +186,7 @@ namespace robolib
         if (motor != nullptr)
         {
             motors.push_back(motor);
+            modules.push_back(motor);
         }
         // Silencio si nullptr: permite encadenamiento condicional
         return *this;
@@ -189,6 +197,7 @@ namespace robolib
         if (sensor != nullptr)
         {
             distanceSensors.push_back(sensor);
+            modules.push_back(sensor);
         }
         return *this;
     }
@@ -198,6 +207,7 @@ namespace robolib
         if (sensor != nullptr)
         {
             lineSensors.push_back(sensor);
+            modules.push_back(sensor);
         }
         return *this;
     }
