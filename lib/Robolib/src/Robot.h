@@ -80,25 +80,7 @@ namespace robolib
          */
         ~Robot();
 
-        // --- Consultas de estado ---
-
-        /**
-         * @brief Obtiene número de motores registrados.
-         * @return Cantidad de motores (>= 0).
-         */
-        size_t getMotorCount() const;
-
-        /**
-         * @brief Obtiene número de sensores de linea registrados.
-         * @return Cantidad de sensores de linea (>= 0).
-         */
-        size_t getLineSensorCount() const;
-
-        /**
-         * @brief Obtiene número de sensores de distancia registrados.
-         * @return Cantidad de sensores (>= 0).
-         */
-        size_t getDistanceSensorCount() const;
+        // -------------- Control de Motores ----------------------------------------//
 
         /**
          * @brief Verifica si hay al menos un motor.
@@ -107,19 +89,11 @@ namespace robolib
         bool hasMotors() const;
 
         /**
-         * @brief Verifica si hay al menos un sensor de distancia.
-         * @return true si distanceSensors no está vacío.
+         * @brief Obtiene número de motores registrados.
+         * @return Cantidad de motores (>= 0).
          */
-        bool hasDistanceSensors() const;
+        size_t getMotorCount() const;
 
-        /**
-         * @brief Verifica si hay al menos un sensor de linea.
-         * @return true si lineSensors no está vacío.
-         */
-        bool hasLineSensors() const;        
-
-
-// -------------- Control de Motores ----------------------------------------//
         /**
          * @brief Mueve un motor específico por índice.
          *
@@ -162,14 +136,20 @@ namespace robolib
          *       Para girar: moveDifferential(200, -200) -> giro sobre eje.
          */
         void moveDifferential(int16_t leftMotorSpeed, int16_t rightMotorSpeed);
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
+        //---------------- Control de Sensores de Distancia -----------------------------------
+        /**
+         * @brief Verifica si hay al menos un sensor de distancia.
+         * @return true si distanceSensors no está vacío.
+         */
+        bool hasDistanceSensors() const;
 
-
-
-
-
-//---------------- Control de Sensores de Distancia -----------------------------------
+        /**
+         * @brief Obtiene número de sensores de distancia registrados.
+         * @return Cantidad de sensores (>= 0).
+         */
+        size_t getDistanceSensorCount() const;
 
         /**
          * @brief Obtiene medición de un sensor de distancia.
@@ -179,15 +159,20 @@ namespace robolib
          */
         float getDistance(size_t sensorIndex);
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
+        //---------------- Control de Sensores de Linea -----------------------------------
+        /**
+         * @brief Verifica si hay al menos un sensor de linea.
+         * @return true si lineSensors no está vacío.
+         */
+        bool hasLineSensors() const;
 
-
-
-
-
-
-//---------------- Control de Sensores de Linea -----------------------------------
+        /**
+         * @brief Obtiene número de sensores de linea registrados.
+         * @return Cantidad de sensores de linea (>= 0).
+         */
+        size_t getLineSensorCount() const;
 
         /**
          * @brief Obtiene medición de un sensor de linea.
@@ -197,19 +182,51 @@ namespace robolib
          */
         bool getLine(size_t sensorIndex);
 
-
+        /**
+         * @brief Establece el estado interno indicando que un valor de 1 significa que
+         * el sensor esta sobre la linea.
+         * Se llama una sola vez.
+         * Usalo si tu sensor regresa 1 (true) cuando detecta negro.
+         *
+         */
         void setOnLineIs1(size_t sensorIndex);
 
-        int getRawValue(size_t sensorIndex);
+
+        /**
+         * @brief Establece el estado interno indicando que un valor de 0 significa que
+         * el sensor esta sobre la linea.
+         * Se llama una sola vez. 
+         * Usalo si tu sensor regresa 0 (false) cuando detecta negro.
+         *
+         */
+        void setOnLineIs0(size_t sensorIndex);
+
+
+        /**
+         * @brief Obtiene el valor analógico crudo del sensor de línea.
+         *
+         * @param sensorIndex Índice del sensor va desde 0 hasta getLineSensorCount()-1
+         * (de 0 a la cantidad de sensores de linea - 1)
+         *
+         * @return La lectura analógica del sensor. Valores más altos típicamente
+         *         indican superficies más brillantes (fuera de línea), valores más bajos
+         *         indican superficies más oscuras (sobre línea), pero esto depende del sensor específico.
+         */
+        int getAnalogValue(size_t sensorIndex);
+
+        /**
+         * @brief Configura el valor de umbral para un sensor de línea con
+         * salida analogica.
+         *
+         * @param sensorIndex Índice del sensor [0, getLineSensorCount()-1]
+         * @param newTreshold Nuevo valor de umbral para el sensor.
+         */
 
         void updateTreshold(size_t sensorIndex, int newTreshold);
-        
-
     };
+    //--------------------------------------------------------------------------------------
 
-
-
-
+    //----------------CLASE ROBOT BUILDER-----------------------------------------------------
 
     /**
      * @file Robot.h
@@ -227,8 +244,7 @@ namespace robolib
     private:
         std::vector<IDriverMotor *> motors;
         std::vector<IDriverDistanceSensor *> distanceSensors;
-        std::vector<IDriverLineSensor *> lineSensors;        
-
+        std::vector<IDriverLineSensor *> lineSensors;
 
     public:
         /**
@@ -259,6 +275,16 @@ namespace robolib
          * @note El RobotBuilder toma ownership del puntero.
          */
         RobotBuilder &addDistanceSensor(IDriverDistanceSensor *sensor);
+
+        /**
+         * @brief Añade un driver de sensor de linea.
+         *
+         * @param sensor Puntero a implementación de IDriverLineSensor (owner transferido).
+         * @return Referencia a *this para encadenamiento.
+         *
+         * @note El RobotBuilder toma ownership del puntero.
+         */
+        RobotBuilder &addLineSensor(IDriverLineSensor *sensor);
 
         /**
          * @brief Construye el Robot transfiriendo ownership de drivers.
