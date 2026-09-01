@@ -222,6 +222,7 @@ namespace robolib
         robot->distanceSensors = std::move(distanceSensors);
         robot->lineSensors = std::move(lineSensors);
 
+        robot->modules = std::move(modules);
         // Builder queda en estado válido (vacío) para reutilización
         return robot;
     }
