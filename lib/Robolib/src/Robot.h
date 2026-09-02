@@ -2,16 +2,13 @@
 #define ROBOT_H
 
 #include <vector>
-#include <cstdint>
 
-#include "Interfaces/IModule.h"
-#include "Interfaces/IDriverMotor.h"
-#include "Interfaces/IDriverDistanceSensor.h"
-#include "Interfaces/IDriverLineSensor.h"
+#include "Interfaces/IRobotModule.h"
+#include "Services/DistanceService.h"
+#include "Services/HBridgeMotorService.h"
 
 namespace robolib
 {
-
     // Forward declaration
     class RobotBuilder;
 
@@ -59,22 +56,21 @@ namespace robolib
     class Robot
     {
     private:
-        std::vector<IDriverMotor *> motors;                   ///< Drivers de motores (owner)
-        std::vector<IDriverDistanceSensor *> distanceSensors; ///< Drivers sensores distancia (owner)
-        std::vector<IDriverLineSensor *> lineSensors;         ///< Drivers sensores de linea (owner)
+        std::vector<IRobotModule *> modules; ///< lista de modulos del robot (incluye
+                                             /// todos los drivers)(owner>
 
-        std::vector<IModule *> modules;                       ///< lista de modulos del robot (incluye
-                                                              /// todos los drivers)(owner>
-
-        // Solo RobotBuilder puede construir
-        Robot() = default;
-        friend class RobotBuilder;
+        Robot() = default;         // Constructor privado. Solo RobotBuilder puede construir
+        friend class RobotBuilder; // friend permie manipular variables privadas desde RobotBuilder
 
         // No copiable (ownership exclusiva)
         Robot(const Robot &) = delete;
         Robot &operator=(const Robot &) = delete;
 
     public:
+        /// Aqui se agregan los servicios para que el robot tenga acceso a sus modulos
+        DistanceService distance{modules};
+        HBridgeMotorService motors{modules};
+
         /**
          * @brief Destructor: libera todos los drivers inyectados.
          *
@@ -88,156 +84,12 @@ namespace robolib
         /**
          * @brief Inicializa todos los modulos del robot
          */
-        void init();
-        // -------------- Control de Motores ----------------------------------------//
+        void begin();
 
-        /**
-         * @brief Verifica si hay al menos un motor.
-         * @return true si motors no está vacío.
-         */
-        bool hasMotors() const;
-
-        /**
-         * @brief Obtiene número de motores registrados.
-         * @return Cantidad de motores (>= 0).
-         */
-        size_t getMotorCount() const;
-
-        /**
-         * @brief Mueve un motor específico por índice.
-         *
-         * @param motorIndex Índice del motor [0, getMotorCount()-1]
-         * @param speed      Velocidad [-255, 255] (ver IDriverMotor::move)
-         *
-         * @note No hace nada si índice inválido o puntero nulo.
-         */
-        void moveMotor(size_t motorIndex, int16_t speed);
-
-        /**
-         * @brief Detiene un motor específico.
-         *
-         * @param motorIndex Índice del motor
-         * @param stacked    Modo freno (ver IDriverMotor::stop)
-         *
-         * @note No hace nada si índice inválido o puntero nulo.
-         */
-        void stopMotor(size_t motorIndex, bool stacked = false);
-
-        /**
-         * @brief Detiene todos los motores.
-         *
-         * @param stacked Modo freno aplicado a todos (default: false = libre)
-         */
-        void stopAllMotors(bool stacked = false);
-
-        /**
-         * @brief Control diferencial para robot de tracción diferencial (2 ruedas).
-         *
-         * Asume:
-         * - motors[0] = motor izquierdo
-         * - motors[1] = motor derecho
-         *
-         * @param leftMotorSpeed  Velocidad rueda izquierda [-255, 255]
-         * @param rightMotorSpeed Velocidad rueda derecha [-255, 255]
-         *
-         * @note No hace nada si hay menos de 2 motores.
-         * @note Convención: positivo = adelante para ambas ruedas.
-         *       Para girar: moveDifferential(200, -200) -> giro sobre eje.
-         */
-        void moveDifferential(int16_t leftMotorSpeed, int16_t rightMotorSpeed);
-        //-------------------------------------------------------------------------------
-
-        //---------------- Control de Sensores de Distancia -----------------------------------
-        /**
-         * @brief Verifica si hay al menos un sensor de distancia.
-         * @return true si distanceSensors no está vacío.
-         */
-        bool hasDistanceSensors() const;
-
-        /**
-         * @brief Obtiene número de sensores de distancia registrados.
-         * @return Cantidad de sensores (>= 0).
-         */
-        size_t getDistanceSensorCount() const;
-
-        /**
-         * @brief Obtiene medición de un sensor de distancia.
-         *
-         * @param sensorIndex Índice del sensor [0, getDistanceSensorCount()-1]
-         * @return Distancia en cm, o -1.0f si índice inválido / puntero nulo / error.
-         */
-        float getDistance(size_t sensorIndex);
-
-        //-------------------------------------------------------------------------------
-
-        //---------------- Control de Sensores de Linea -----------------------------------
-        /**
-         * @brief Verifica si hay al menos un sensor de linea.
-         * @return true si lineSensors no está vacío.
-         */
-        bool hasLineSensors() const;
-
-        /**
-         * @brief Obtiene número de sensores de linea registrados.
-         * @return Cantidad de sensores de linea (>= 0).
-         */
-        size_t getLineSensorCount() const;
-
-        /**
-         * @brief Obtiene medición de un sensor de linea.
-         *
-         * @param sensorIndex Índice del sensor [0, getLineSensorCount()-1]
-         * @return true o false dependiendo de si esta o no sobre la linea.
-         */
-        bool getLine(size_t sensorIndex);
-
-        /**
-         * @brief Establece el estado interno indicando que un valor de 1 significa que
-         * el sensor esta sobre la linea.
-         * Se llama una sola vez.
-         * Usalo si tu sensor regresa 1 (true) cuando detecta negro.
-         *
-         */
-        void setOnLineIs1(size_t sensorIndex);
-
-
-        /**
-         * @brief Establece el estado interno indicando que un valor de 0 significa que
-         * el sensor esta sobre la linea.
-         * Se llama una sola vez. 
-         * Usalo si tu sensor regresa 0 (false) cuando detecta negro.
-         *
-         */
-        void setOnLineIs0(size_t sensorIndex);
-
-
-        /**
-         * @brief Obtiene el valor analógico crudo del sensor de línea.
-         *
-         * @param sensorIndex Índice del sensor va desde 0 hasta getLineSensorCount()-1
-         * (de 0 a la cantidad de sensores de linea - 1)
-         *
-         * @return La lectura analógica del sensor. Valores más altos típicamente
-         *         indican superficies más brillantes (fuera de línea), valores más bajos
-         *         indican superficies más oscuras (sobre línea), pero esto depende del sensor específico.
-         */
-        int getAnalogValue(size_t sensorIndex);
-
-        /**
-         * @brief Configura el valor de umbral para un sensor de línea con
-         * salida analogica.
-         *
-         * @param sensorIndex Índice del sensor [0, getLineSensorCount()-1]
-         * @param newTreshold Nuevo valor de umbral para el sensor.
-         */
-
-        void updateTreshold(size_t sensorIndex, int newTreshold);
-
+        void update();
     };
-    //--------------------------------------------------------------------------------------
 
     //----------------CLASE ROBOT BUILDER-----------------------------------------------------
-
     /**
      * @file Robot.h
      * @brief Builder para construcción fluida de Robot (Builder Pattern).
@@ -252,12 +104,7 @@ namespace robolib
     class RobotBuilder
     {
     private:
-        std::vector<IDriverMotor *> motors;
-        std::vector<IDriverDistanceSensor *> distanceSensors;
-        std::vector<IDriverLineSensor *> lineSensors;
-
-        std::vector<IModule *> modules;
-
+        std::vector<IRobotModule *> tempModules;
 
     public:
         /**
@@ -268,36 +115,16 @@ namespace robolib
         RobotBuilder() = default;
 
         /**
-         * @brief Añade un driver de motor.
+         * @brief Añade un modulo al robot (Actuadores y/o Sensores).
          *
-         * @param motor Puntero a implementación de IDriverMotor (owner transferido).
+         * @param moodule Puntero a implementación de IRobotDriver (owner transferido).
          *              Debe ser puntero válido (no nullptr) y no estar ya en otro Robot.
          * @return Referencia a *this para encadenamiento.
          *
          * @note El RobotBuilder toma ownership del puntero.
          *       No eliminar manualmente tras añadir.
          */
-        RobotBuilder &addMotor(IDriverMotor *motor);
-
-        /**
-         * @brief Añade un driver de sensor de distancia.
-         *
-         * @param sensor Puntero a implementación de IDriverDistanceSensor (owner transferido).
-         * @return Referencia a *this para encadenamiento.
-         *
-         * @note El RobotBuilder toma ownership del puntero.
-         */
-        RobotBuilder &addDistanceSensor(IDriverDistanceSensor *sensor);
-
-        /**
-         * @brief Añade un driver de sensor de linea.
-         *
-         * @param sensor Puntero a implementación de IDriverLineSensor (owner transferido).
-         * @return Referencia a *this para encadenamiento.
-         *
-         * @note El RobotBuilder toma ownership del puntero.
-         */
-        RobotBuilder &addLineSensor(IDriverLineSensor *sensor);
+        RobotBuilder &addModule(IRobotModule *module);
 
         /**
          * @brief Construye el Robot transfiriendo ownership de drivers.

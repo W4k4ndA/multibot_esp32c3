@@ -91,7 +91,7 @@ public:
      * 
      * @post Sensor listo para medir con measureCM()
      */
-    void begin() override;
+    void init() override;
 
     /**
      * @brief Realiza medición de distancia por ultrasónidos.

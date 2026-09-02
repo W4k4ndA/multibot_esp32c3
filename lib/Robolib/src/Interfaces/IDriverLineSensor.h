@@ -1,7 +1,7 @@
 #ifndef LINE_SENSOR_H
 #define LINE_SENSOR_H
 
-#include "IModule.h"
+#include "IRobotModule.h"
 
 /**
  * @interface IDriverLineSensor
@@ -15,7 +15,7 @@
 
 namespace robolib
 {
-  class IDriverLineSensor : public IModule
+  class IDriverLineSensor : public IRobotModule
   {
   private:
     bool is1onLine;

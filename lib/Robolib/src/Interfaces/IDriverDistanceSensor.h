@@ -1,7 +1,7 @@
-#ifndef DISTANCE_SENSOR_H
-#define DISTANCE_SENSOR_H
+#ifndef I_DRIVER_DISTANCE_SENSOR_H
+#define I_DRIVER_DISTANCE_SENSOR_H
 
-#include "IModule.h"
+#include "IRobotModule.h"
 #include <cstdint>
 
 /**
@@ -31,7 +31,7 @@ namespace robolib {
  * @see HCSR04SensorDriver
  * @ingroup drivers
  */
-class IDriverDistanceSensor : public IModule {
+class IDriverDistanceSensor : public IRobotModule {
 public:
     /**
      * @brief Destructor virtual por defecto.
@@ -42,18 +42,7 @@ public:
     virtual ~IDriverDistanceSensor() = default;
 
     /**
-     * @brief Inicializa el hardware del sensor.
-     * 
-     * Configura pines GPIO (trigger/echo, I2C, UART), registros internos,
-     * y realiza calibración inicial si el sensor la requiere.
-     * Debe llamarse exactamente una vez antes de cualquier medición.
-     * 
-     * @post El sensor queda listo para medir.
-     */
-    virtual void begin() = 0;
-
-    /**
-     * @brief Realiza una medición de distancia única.
+     * @brief Realiza una medición de distancia única en cm.
      * 
      * @return Distancia medida en centímetros.
      *         Retorna valor negativo en caso de error:

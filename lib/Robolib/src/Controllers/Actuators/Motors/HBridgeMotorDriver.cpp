@@ -17,7 +17,7 @@ namespace robolib {
 HBridgeMotorDriver::HBridgeMotorDriver(uint8_t pinIN1, uint8_t pinIN2, uint8_t ch1, uint8_t ch2)
     : IN1(pinIN1), IN2(pinIN2), CH1(ch1), CH2(ch2) {}
 
-void HBridgeMotorDriver::begin()
+void HBridgeMotorDriver::init()
 {
     // Configurar pines de dirección como salidas
     pinMode(IN1, OUTPUT);

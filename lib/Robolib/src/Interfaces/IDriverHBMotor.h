@@ -1,12 +1,12 @@
-#ifndef DRIVER_MOTOR_H
-#define DRIVER_MOTOR_H
+#ifndef I_DRIVER_HB_MOTOR_H
+#define I_DRIVER_HB_MOTOR_H
 
 
 #include <cstdint>
-#include "IModule.h"
+#include "IRobotModule.h"
 
 /**
- * @file IDriverMotor.h
+ * @file IDriverHBMotor.h
  * @brief Interfaz abstracta para controladores de motores.
  * 
  * Define el contrato que deben implementar todos los drivers de motores
@@ -33,7 +33,7 @@ namespace robolib {
  * @see HBridgeMotorDriver
  * @ingroup drivers
  */
-class IDriverMotor : public IModule {
+class IDriverHBMotor : public IRobotModule {
 public:
     /**
      * @brief Destructor virtual por defecto.
@@ -41,18 +41,11 @@ public:
      * Necesario para destrucción correcta de objetos derivados mediante
      * puntero a la interfaz (polimorfismo).
      */
-    virtual ~IDriverMotor() = default;
+    virtual ~IDriverHBMotor() = default;
 
-    /**
-     * @brief Inicializa el hardware del driver de motor.
-     * 
-     * Configura pines GPIO (dirección, PWM), timers LEDC, frecuencia
-     * y resolución PWM. Debe llamarse exactamente una vez antes de
-     * cualquier operación de movimiento.
-     * 
-     * @post El motor queda en estado detenido y listo para recibir comandos.
-     */
-    virtual void begin() = 0;
+  
+    // init() se hereda como virtual puro desde IRobotModule. 
+    // Las clases concretas (L298N, TB6612) lo implementarán.
 
     /**
      * @brief Establece la velocidad y dirección del motor.
@@ -77,9 +70,9 @@ public:
      * @note Con stacked=true el motor frena más rápido pero consume más corriente.
      *       Útil para paradas de emergencia o posicionamiento preciso.
      */
-    virtual void stop(bool stacked = false) = 0;
+    virtual void stop(bool breaked = false) = 0;
 };
 
 } // namespace robolib
 
-#endif
+#endif //I_DRIVER_HB_MOTOR_H

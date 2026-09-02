@@ -1,7 +1,7 @@
 #ifndef HBRIDGE_DRIVER_H
 #define HBRIDGE_DRIVER_H
 
-#include "Interfaces/IDriverMotor.h"
+#include "Interfaces/IDriverHBMotor.h"
 
 namespace robolib {
 
@@ -47,7 +47,7 @@ namespace robolib {
  * @see IDriverMotor
  * @ingroup drivers
  */
-class HBridgeMotorDriver : public IDriverMotor {
+class HBridgeMotorDriver : public IDriverHBMotor {
 private:
     uint8_t IN1;      ///< Pin GPIO dirección 1 (conectado a IN1 del puente H)
     uint8_t IN2;      ///< Pin GPIO dirección 2 (conectado a IN2 del puente H)
@@ -91,7 +91,7 @@ public:
      * 
      * @post Motor listo para recibir comandos move()/stop()
      */
-    void begin() override;
+    void init() override;
 
     /**
      * @brief Establece velocidad del motor.

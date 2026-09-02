@@ -16,7 +16,7 @@ namespace robolib {
 HCSR04SensorDriver::HCSR04SensorDriver(uint8_t triggerPin, uint8_t echoPin)
     : trigPin(triggerPin), echoPin(echoPin) {}
 
-void HCSR04SensorDriver::begin()
+void HCSR04SensorDriver::init()
 {
     pinMode(trigPin, OUTPUT);
     pinMode(echoPin, INPUT);
